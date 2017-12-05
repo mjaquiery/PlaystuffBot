@@ -1,0 +1,18 @@
+2017-12-04 21:36:32,284.284 Task exception was never retrieved
+future: <Task finished coro=<Client._run_event() done, defined at C:\ProgramData\Anaconda3\lib\site-packages\discord\client.py:304> exception=SystemExit()>
+Traceback (most recent call last):
+  File "C:\ProgramData\Anaconda3\lib\site-packages\discord\client.py", line 519, in run
+    self.loop.run_until_complete(self.start(*args, **kwargs))
+  File "C:\ProgramData\Anaconda3\lib\asyncio\base_events.py", line 454, in run_until_complete
+    self.run_forever()
+  File "C:\ProgramData\Anaconda3\lib\asyncio\base_events.py", line 421, in run_forever
+    self._run_once()
+  File "C:\ProgramData\Anaconda3\lib\asyncio\base_events.py", line 1425, in _run_once
+    handle._run()
+  File "C:\ProgramData\Anaconda3\lib\asyncio\events.py", line 126, in _run
+    self._callback(*self._args)
+  File "C:\ProgramData\Anaconda3\lib\site-packages\discord\client.py", line 307, in _run_event
+    yield from getattr(self, event)(*args, **kwargs)
+  File "G:/Documents/Programs/Python/PlaystuffBot/PSBot.py", line 204, in on_ready
+    raise SystemExit
+SystemExit
