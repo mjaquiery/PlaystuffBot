@@ -1,0 +1,2 @@
+# Playstuff Forum Bot for Discord
+This Discord bot reviews posts in the playstuff.net forum and writes summaries of activity in the Chat channel in the Playstuff Discord. It may in future do other things. 

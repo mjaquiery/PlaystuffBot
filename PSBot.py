@@ -1,11 +1,18 @@
-import token
+"""
+Playstuff Forum Bot for Discord
+- Sloth.ps
 
-import requests, os, re, datetime, logging, discord
+Reads the playstuff.net forum and posts summaries of activity to the Playstuff Discord.
+"""
+import requests, re, datetime, logging, discord
 from lxml import html
 from auth import token
 
 
-def clean_date_field(date_field):
+def clean_date_field(date_field: str) -> str:
+    """Return a substring from date_field which is a sequence of digits, letters, and dashes without spaces.
+    The forum gives us horrible date fields filled with newlines and stuff. Technically this could just ''.split()
+    the thing, but this solution is more robust. """
     rx = re.compile(r'([\d\w\-]+)')
     txt = rx.search(date_field)
     if txt:
@@ -13,7 +20,10 @@ def clean_date_field(date_field):
     return date_field
 
 
-def junk2datetime(date_str, time_str):
+def junk2datetime(date_str: str, time_str: str) -> object:
+    """Return a datetime given a date_string and time_string.
+    The date_string is allowed values of 'Yesterday', 'Today', or a value like year-month-day.
+    The time string must be in the form hours:minutes."""
     h, mi = time_str.split(':')
     if date_str=='Yesterday' or date_str=='Today':
         dt = datetime.date.today()
@@ -28,7 +38,9 @@ def junk2datetime(date_str, time_str):
     return datetime.datetime(int(y), int(mo), int(d), int(h), int(mi))
 
 
-def ints(non_int : list) -> list:
+def ints(non_int: list) -> list[int]:
+    """Return a list where all items are converted to int (if possible). Items that cannot be converted are returned
+    unchanged."""
     list_out = []
     for x in non_int:
         try:
@@ -41,6 +53,8 @@ def ints(non_int : list) -> list:
 
 
 def get_last_crawl_time() -> object:
+    """Return the latest time entry in the log as a datetime object. If no time entries are found or no log exists,
+    return 24h ago."""
     try:
         log_file = open(log_file_name, 'r')
         # reads the whole file into memory; probably excessive?
@@ -56,7 +70,8 @@ def get_last_crawl_time() -> object:
     return datetime.datetime.today() - datetime.timedelta(days=1)
 
 
-def joinLists(a: list, b: list) -> list:
+def join_lists(a: list, b: list) -> list:
+    """Return a list containing the items from a and the items from b."""
     if len(a) == 0:
         return b
     if len(b) == 0:
@@ -66,7 +81,9 @@ def joinLists(a: list, b: list) -> list:
     return a
 
 
-def parse_thread(thread_url):
+def parse_thread(thread_url: str) -> list[object]:
+    """Return the new posts (xml node objects) from a thread.
+    Search previous thread pages until a page has no new posts."""
     log.debug(f"parse_thread: {thread_url.split('?')[0]}")
     new_posts = []
     index = requests.get(thread_url)
@@ -96,7 +113,7 @@ def parse_thread(thread_url):
                     try:
                         if int(page_num)==int(pnum)-1:
                             prev_page_url = page.base + page.attrib['href']
-                            new_posts = joinLists(new_posts, parse_thread(prev_page_url))
+                            new_posts = join_lists(new_posts, parse_thread(prev_page_url))
                             break
                     except (ValueError, TypeError):
                         continue
@@ -105,7 +122,8 @@ def parse_thread(thread_url):
     return new_posts
 
 
-def parse_forum(forum_url):
+def parse_forum(forum_url: str) -> list[object]:
+    """Return a list of new posts (xml node objects) in threads within a forum."""
     new_posts = []
     index = requests.get(forum_url)
     tree = html.fromstring(index.content)
@@ -118,7 +136,7 @@ def parse_forum(forum_url):
             if post_time > last_checked:
                 url = thread.xpath('descendant::a[contains(@class,"lastpostdate")]')[0]
                 url = url.base+url.attrib['href']
-                new_posts = joinLists(new_posts, parse_thread(url))
+                new_posts = join_lists(new_posts, parse_thread(url))
         except IndexError:
             continue
 
@@ -126,6 +144,7 @@ def parse_forum(forum_url):
 
 
 def parse_subfora(forum_url, depth=0):
+    """Return a list of new posts (xml node objects) in threads within this forum and its subfora."""
     new_posts = []
     # Get the web data
     index = requests.get(forum_url)
@@ -142,9 +161,9 @@ def parse_subfora(forum_url, depth=0):
             last_post = junk2datetime(clean_date_field(time_data.text),
                                           time_data.xpath('descendant::span[contains(@class,"time")]')[0].text)
             # Navigate to the forum and investigate the new posts
-            new_posts = joinLists(new_posts, parse_forum(url))
+            new_posts = join_lists(new_posts, parse_forum(url))
             if not url == forum_url:
-                new_posts = joinLists(new_posts, parse_subfora(url, depth+1))
+                new_posts = join_lists(new_posts, parse_subfora(url, depth + 1))
         except IndexError:
             log.debug(f"{buffer}No access to {name} [{url.split('?')[0]}]")
             continue  # a forum which is displayed but doesn't give last-post dates is locked, so don't follow it
@@ -163,9 +182,11 @@ if __name__ == "__main__":
     logging.basicConfig(filename=log_file_name, filemode='w', level=logging.INFO,
                         format='%(asctime)s.%(msecs)03d %(message)s')
     log = logging.getLogger("PSbot")
+    # Do the forum scanning work of collecting a list of the new posts
     new_posts = parse_subfora('http://playstuff.net/forum.php')
     log.info(f"Finished: found {int(len(new_posts))} new posts since {last_checked}")
 
+    # Prepare a presentable summary of new post information
     titles = {}
     for post in new_posts:
         title = post.xpath('descendant::h2[contains(@class, "title")]')[0].text.split()
@@ -183,6 +204,8 @@ if __name__ == "__main__":
 
     speak_text = f"There are {len(new_posts)} new posts on http://playstuff.net/forum.php since "
     speak_text += f"{last_checked.strftime('%A, %d. %B %Y %I:%M%p')}"
+
+    # If there's something to show for it then connect to Discord and post the summary to the Chat
     if len(new_posts):
         speak_text += ':'
         for title in titles:
@@ -196,13 +219,17 @@ if __name__ == "__main__":
         server_id = "156752862888591360"  # playstuff server
         chat_id = "156752862888591360"  # chat channel
         client = discord.Client()
+
+        # Set up bot events handling
         @client.event
-        async def on_ready():
+        async def on_ready():  # on connect
             log.info(f"Logged into discord server {server_id} as {client.user.name} [{client.user.id}]")
-            # Speak our piece
+            # Post summary
             await client.send_message(client.get_channel(chat_id), speak_text)
             # And be done
             client.logout()
             log.info(f"Logout")
             # raise SystemExit
+
+        # Run the bot
         client.run(discord_bot_token)
