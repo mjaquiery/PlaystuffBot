@@ -212,8 +212,8 @@ if __name__ == "__main__":
         for title in titles:
             speak_text += f"\n{title} - {titles[title]['posts']} post"
             if titles[title]['posts'] > 1:
-                speak_text += f"s from {len(titles[title]['users'])} \
-                                user{'s' if len(titles[title]['users']) > 1 else ''}"
+                speak_text += f"s from {len(titles[title]['users'])}"
+                speak_text += f"user{'s' if len(titles[title]['users']) > 1 else ''}"
         log.debug(f"discord message: {speak_text}")
         # Announce new posts on Discord
         discord_bot_token = token.discord_bot_token
