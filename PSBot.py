@@ -6,6 +6,7 @@ Reads the playstuff.net forum and posts summaries of activity to the Playstuff D
 """
 import requests, re, datetime, logging, discord
 from lxml import html
+from typing import List
 from auth import token
 
 
@@ -38,7 +39,7 @@ def junk2datetime(date_str: str, time_str: str) -> object:
     return datetime.datetime(int(y), int(mo), int(d), int(h), int(mi))
 
 
-def ints(non_int: list) -> list[int]:
+def ints(non_int: list) -> List[int]:
     """Return a list where all items are converted to int (if possible). Items that cannot be converted are returned
     unchanged."""
     list_out = []
@@ -81,7 +82,7 @@ def join_lists(a: list, b: list) -> list:
     return a
 
 
-def parse_thread(thread_url: str) -> list[object]:
+def parse_thread(thread_url: str) -> List[object]:
     """Return the new posts (xml node objects) from a thread.
     Search previous thread pages until a page has no new posts."""
     log.debug(f"parse_thread: {thread_url.split('?')[0]}")
@@ -122,7 +123,7 @@ def parse_thread(thread_url: str) -> list[object]:
     return new_posts
 
 
-def parse_forum(forum_url: str) -> list[object]:
+def parse_forum(forum_url: str) -> List[object]:
     """Return a list of new posts (xml node objects) in threads within a forum."""
     new_posts = []
     index = requests.get(forum_url)
@@ -143,7 +144,7 @@ def parse_forum(forum_url: str) -> list[object]:
     return new_posts
 
 
-def parse_subfora(forum_url, depth=0):
+def parse_subfora(forum_url: str, depth: int = 0) -> List[object]:
     """Return a list of new posts (xml node objects) in threads within this forum and its subfora."""
     new_posts = []
     # Get the web data
@@ -230,6 +231,7 @@ if __name__ == "__main__":
             client.logout()
             log.info(f"Logout")
             # raise SystemExit
+            exit(0)
 
         # Run the bot
         client.run(discord_bot_token)

@@ -1,5 +1,5 @@
-2017-12-04 21:36:32,284.284 Task exception was never retrieved
-future: <Task finished coro=<Client._run_event() done, defined at C:\ProgramData\Anaconda3\lib\site-packages\discord\client.py:304> exception=SystemExit()>
+2017-12-06 13:25:49,419.419 Task exception was never retrieved
+future: <Task finished coro=<Client._run_event() done, defined at C:\ProgramData\Anaconda3\lib\site-packages\discord\client.py:304> exception=SystemExit(0,)>
 Traceback (most recent call last):
   File "C:\ProgramData\Anaconda3\lib\site-packages\discord\client.py", line 519, in run
     self.loop.run_until_complete(self.start(*args, **kwargs))
@@ -13,6 +13,8 @@ Traceback (most recent call last):
     self._callback(*self._args)
   File "C:\ProgramData\Anaconda3\lib\site-packages\discord\client.py", line 307, in _run_event
     yield from getattr(self, event)(*args, **kwargs)
-  File "G:/Documents/Programs/Python/PlaystuffBot/PSBot.py", line 204, in on_ready
-    raise SystemExit
-SystemExit
+  File "G:/Documents/Programs/Python/PlaystuffBot/PSBot.py", line 234, in on_ready
+    exit(0)
+  File "C:\ProgramData\Anaconda3\lib\_sitebuiltins.py", line 26, in __call__
+    raise SystemExit(code)
+SystemExit: 0
