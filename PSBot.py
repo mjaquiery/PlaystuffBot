@@ -53,7 +53,7 @@ def ints(non_int: list) -> List[int]:
     return list_out
 
 
-def get_last_crawl_time() -> object:
+def get_last_crawl_time(days_ago: int = 1) -> object:
     """Return the latest time entry in the log as a datetime object. If no time entries are found or no log exists,
     return 24h ago."""
     try:
@@ -68,7 +68,7 @@ def get_last_crawl_time() -> object:
     except FileNotFoundError:
         pass
     # defaults to 'yesterday'
-    return datetime.datetime.today() - datetime.timedelta(days=1)
+    return datetime.datetime.today() - datetime.timedelta(days=days_ago)
 
 
 def join_lists(a: list, b: list) -> list:
@@ -178,7 +178,7 @@ def parse_subfora(forum_url: str, depth: int = 0) -> List[object]:
 if __name__ == "__main__":
     global last_checked, log, log_file_name
     log_file_name = 'PSBot.log'
-    last_checked = get_last_crawl_time()
+    last_checked = get_last_crawl_time(2)
     # last_checked = datetime.datetime.today() - datetime.timedelta(days=14)
     logging.basicConfig(filename=log_file_name, filemode='w', level=logging.INFO,
                         format='%(asctime)s.%(msecs)03d %(message)s')
@@ -212,8 +212,9 @@ if __name__ == "__main__":
         for title in titles:
             speak_text += f"\n{title} - {titles[title]['posts']} post"
             if titles[title]['posts'] > 1:
-                speak_text += f"s from {len(titles[title]['users'])} "
-                speak_text += f"user{'s' if len(titles[title]['users']) > 1 else ''}"
+                speak_text += f"s from {len(titles[title]['users'])} users"
+            else:
+                speak_text += f" by {titles[title]['users'][0]}"
         log.debug(f"discord message: {speak_text}")
         # Announce new posts on Discord
         discord_bot_token = token.discord_bot_token
