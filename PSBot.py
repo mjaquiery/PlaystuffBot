@@ -203,18 +203,19 @@ if __name__ == "__main__":
         else:
             titles[title]['posts'] += 1
 
-    speak_text = f"There are {len(new_posts)} new posts on http://playstuff.net/forum.php since "
-    speak_text += f"{last_checked.strftime('%A, %d. %B %Y %I:%M%p')}"
+    speak_text = f"There are **{len(new_posts)}** new posts on http://playstuff.net/forum.php since "
+    speak_text += f"**{last_checked.strftime('%I:%M%p on %A (%D)')}**"
 
     # If there's something to show for it then connect to Discord and post the summary to the Chat
     if len(new_posts):
-        speak_text += ':'
+        speak_text += ':```'
         for title in titles:
             speak_text += f"\n{title} - {titles[title]['posts']} post"
             if titles[title]['posts'] > 1:
                 speak_text += f"s from {len(titles[title]['users'])} users"
             else:
                 speak_text += f" by {titles[title]['users'][0]}"
+        speak_text += '```'
         log.debug(f"discord message: {speak_text}")
         # Announce new posts on Discord
         discord_bot_token = token.discord_bot_token
