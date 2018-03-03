@@ -86,7 +86,7 @@ def join_lists(a: list, b: list) -> list:
 def parse_thread(thread_url: str) -> List[object]:
     """Return the new posts (xml node objects) from a thread.
     Search previous thread pages until a page has no new posts."""
-    log.debug(f"parse_thread: {thread_url.split('?')[0]}")
+    log.debug(f'parse_thread: {thread_url.split('?')[0]}')
     new_posts = []
     index = requests.get(thread_url)
     tree = html.fromstring(index.content)
@@ -100,7 +100,7 @@ def parse_thread(thread_url: str) -> List[object]:
                                   time_data.xpath('descendant::span[contains(@class, "time")]')[0].text)
         if post_time > last_checked:
             new_posts.append(post)
-            log.debug(f"Post {post_number} is new.")
+            log.debug(f'Post {post_number} is new.')
 
     if len(new_posts):
         # we have new posts, so check the previous page
@@ -167,10 +167,10 @@ def parse_subfora(forum_url: str, depth: int = 0) -> List[object]:
             if not url == forum_url:
                 new_posts = join_lists(new_posts, parse_subfora(url, depth + 1))
         except IndexError:
-            log.debug(f"{buffer}No access to {name} [{url.split('?')[0]}]")
+            log.debug(f'{buffer}No access to {name} [{url.split("?")[0]}]')
             continue  # a forum which is displayed but doesn't give last-post dates is locked, so don't follow it
         # Find new posts
-        log.debug(f"{buffer}{name} [{url.split('?')[0]}, ; {last_post}']")
+        log.debug(f'{buffer}{name} [{url.split("?")[0]}, ; {last_post}]')
 
     return new_posts
 
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     log = logging.getLogger("PSbot")
     # Do the forum scanning work of collecting a list of the new posts
     new_posts = parse_subfora('http://playstuff.net/forum.php')
-    log.info(f"Finished: found {int(len(new_posts))} new posts since {last_checked}")
+    log.info(f'Finished: found {int(len(new_posts))} new posts since {last_checked}')
 
     # Prepare a presentable summary of new post information
     titles = {}
@@ -204,35 +204,35 @@ if __name__ == "__main__":
         else:
             titles[title]['posts'] += 1
 
-    speak_text = f"There are **{len(new_posts)}** new posts on http://playstuff.net/forum.php since "
-    speak_text += f"**{last_checked.strftime('%I:%M%p on %A (%d/%m/%y)')}**"
+    speak_text = f'There are **{len(new_posts)}** new posts on http://playstuff.net/forum.php since '
+    speak_text += f'**{last_checked.strftime('%I:%M%p on %A (%d/%m/%y)')}**'
 
     # If there's something to show for it then connect to Discord and post the summary to the Chat
     if len(new_posts):
         speak_text += ':```'
         for title in titles:
-            speak_text += f"\n{title} - {titles[title]['posts']} post"
+            speak_text += f'\n{title} - {titles[title]['posts']} post'
             if titles[title]['posts'] > 1:
-                speak_text += f"s from {len(titles[title]['users'])} users"
+                speak_text += f's from {len(titles[title]['users'])} users'
             else:
-                speak_text += f" by {titles[title]['users'][0]}"
+                speak_text += f' by {titles[title]['users'][0]}'
         speak_text += '```'
-        log.debug(f"discord message: {speak_text}")
+        log.debug(f'discord message: {speak_text}')
         # Announce new posts on Discord
         discord_bot_token = token.discord_bot_token
-        server_id = "156752862888591360"  # playstuff server
-        chat_id = "156752862888591360"  # chat channel
+        server_id = '156752862888591360'  # playstuff server
+        chat_id = '156752862888591360'  # chat channel
         client = discord.Client()
 
         # Set up bot events handling
         @client.event
         async def on_ready():  # on connect
-            log.info(f"Logged into discord server {server_id} as {client.user.name} [{client.user.id}]")
+            log.info(f'Logged into discord server {server_id} as {client.user.name} [{client.user.id}]')
             # Post summary
             await client.send_message(client.get_channel(chat_id), speak_text)
             # And be done
             client.logout()
-            log.info(f"Logout")
+            log.info(f'Logout')
             # raise SystemExit
             exit(0)
 
