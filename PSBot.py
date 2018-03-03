@@ -5,10 +5,9 @@ Playstuff Forum Bot for Discord
 
 Reads the playstuff.net forum and posts summaries of activity to the Playstuff Discord.
 """
-import requests, re, datetime, logging, discord
+import requests, re, datetime, logging, discord, auth
 from lxml import html
 from typing import List
-from auth import token
 
 
 def clean_date_field(date_field: str) -> str:
@@ -221,7 +220,7 @@ if __name__ == "__main__":
         speak_text += '```'
         log.debug(f'discord message: {speak_text}')
         # Announce new posts on Discord
-        discord_bot_token = token.discord_bot_token
+        discord_bot_token = auth.token.discord_bot_token
         server_id = '156752862888591360'  # playstuff server
         chat_id = '156752862888591360'  # chat channel
         client = discord.Client()
