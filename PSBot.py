@@ -86,7 +86,8 @@ def join_lists(a: list, b: list) -> list:
 def parse_thread(thread_url: str) -> List[object]:
     """Return the new posts (xml node objects) from a thread.
     Search previous thread pages until a page has no new posts."""
-    log.debug(f'parse_thread: {thread_url.split('?')[0]}')
+    split = '?'
+    log.debug(f'parse_thread: {thread_url.split(split)[0]}')
     new_posts = []
     index = requests.get(thread_url)
     tree = html.fromstring(index.content)
@@ -147,6 +148,7 @@ def parse_forum(forum_url: str) -> List[object]:
 
 def parse_subfora(forum_url: str, depth: int = 0) -> List[object]:
     """Return a list of new posts (xml node objects) in threads within this forum and its subfora."""
+    split = '?'
     new_posts = []
     # Get the web data
     index = requests.get(forum_url)
@@ -167,10 +169,10 @@ def parse_subfora(forum_url: str, depth: int = 0) -> List[object]:
             if not url == forum_url:
                 new_posts = join_lists(new_posts, parse_subfora(url, depth + 1))
         except IndexError:
-            log.debug(f'{buffer}No access to {name} [{url.split("?")[0]}]')
+            log.debug(f'{buffer}No access to {name} [{url.split(split)[0]}]')
             continue  # a forum which is displayed but doesn't give last-post dates is locked, so don't follow it
         # Find new posts
-        log.debug(f'{buffer}{name} [{url.split("?")[0]}, ; {last_post}]')
+        log.debug(f'{buffer}{name} [{url.split(split)[0]}, ; {last_post}]')
 
     return new_posts
 
