@@ -213,11 +213,11 @@ if __name__ == "__main__":
     if len(new_posts):
         speak_text += ':```'
         for title in titles:
-            speak_text += f'\n{title} - {titles[title]['posts']} post'
+            speak_text += f'\n{title} - {titles[title]["posts"]} post'
             if titles[title]['posts'] > 1:
-                speak_text += f's from {len(titles[title]['users'])} users'
+                speak_text += f's from {len(titles[title]["users"])} users'
             else:
-                speak_text += f' by {titles[title]['users'][0]}'
+                speak_text += f' by {titles[title]["users"][0]}'
         speak_text += '```'
         log.debug(f'discord message: {speak_text}')
         # Announce new posts on Discord
