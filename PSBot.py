@@ -207,7 +207,7 @@ if __name__ == "__main__":
             titles[title]['posts'] += 1
 
     speak_text = f'There are **{len(new_posts)}** new posts on http://playstuff.net/forum.php since '
-    speak_text += f'**{last_checked.strftime('%I:%M%p on %A (%d/%m/%y)')}**'
+    speak_text += f'**{last_checked.strftime("%I:%M%p on %A (%d/%m/%y)")}**'
 
     # If there's something to show for it then connect to Discord and post the summary to the Chat
     if len(new_posts):
