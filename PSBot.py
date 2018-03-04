@@ -5,9 +5,10 @@ Playstuff Forum Bot for Discord
 
 Reads the playstuff.net forum and posts summaries of activity to the Playstuff Discord.
 """
-import requests, re, datetime, logging, discord, auth
+import requests, re, datetime, logging, discord
 from lxml import html
 from typing import List
+from auth import token
 
 
 def clean_date_field(date_field: str) -> str:
