@@ -221,7 +221,7 @@ if __name__ == "__main__":
         speak_text += '```'
         log.debug(f'discord message: {speak_text}')
         # Announce new posts on Discord
-        discord_bot_token = auth.token.discord_bot_token
+        discord_bot_token = token.discord_bot_token
         server_id = '156752862888591360'  # playstuff server
         chat_id = '156752862888591360'  # chat channel
         client = discord.Client()
