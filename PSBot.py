@@ -195,6 +195,9 @@ if __name__ == "__main__":
     for post in new_posts:
         title = post.xpath('descendant::h2[contains(@class, "title")]')[0].text.split()
         title = ' '.join(title)
+        # Fold replies into main thread
+        if title[:4] == 'Re: ':
+            title = title[4:]
         user = post.xpath('descendant::a[contains(@class, "username")]/*')[0].text.split()
         user = ' '.join(user)
         log.debug(f"{title} - {user}")
